@@ -2,6 +2,6 @@
 {
     public class DeleteUserRequest
     {
-        public int IdUser { get; set; }
+        public required int IdUser { get; set; }
     }
 }

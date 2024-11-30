@@ -86,7 +86,11 @@ namespace CourseWork.Application.Services
                 Password = request.Password,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                RoleId = request.Role
+                RoleId = request.Role,
+                Biography = request.Biography,
+                City = request.City,
+                Country = request.Country,
+                PhoneNumber = request.PhoneNumber
             };
             await _charityDbContext.Users.AddAsync(user);
             await _charityDbContext.SaveChangesAsync();
@@ -117,6 +121,10 @@ namespace CourseWork.Application.Services
             user.LastName = request.LastName;
             user.FirstName = request.FirstName;
             user.RoleId = request.Role;
+            user.Country = request.Country;
+            user.City = request.City;
+            user.PhoneNumber = request.PhoneNumber;
+            user.Biography = request.Biography;
             await _charityDbContext.SaveChangesAsync();
 
             return new UserResponse
