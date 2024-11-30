@@ -75,7 +75,7 @@ namespace CourseWork.Application.Services
 
         public async Task<UserResponse> RegisterUserAsync(CreateUserRequest request)
         {
-            if (await _charityDbContext.Users.FindAsync(request.Email) != null)
+            if (await _charityDbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email) != null)
             {
                 throw new UserWithThisEmailAlreadyExistsException();
             }
