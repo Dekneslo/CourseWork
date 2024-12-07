@@ -38,7 +38,7 @@ namespace CourseWork
                 });
 
             builder.Services.AddAuthorization();
-            builder.Services.AddDbContext<CharityDBContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+            builder.Services.AddDbContext<CharityDBContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IChatService, ChatService>();
             builder.Services.AddScoped<IUserService, UserService>();
