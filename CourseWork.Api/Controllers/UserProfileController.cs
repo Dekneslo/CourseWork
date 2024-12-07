@@ -1,4 +1,5 @@
-﻿using CourseWork.Domain.Contracts.UserContracts;
+﻿using CourseWork.Application.Services;
+using CourseWork.Domain.Contracts.UserContracts;
 using CourseWork.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,32 +9,26 @@ namespace CourseWork.Controllers;
 [ApiController]
 public class UserProfileController : ControllerBase
 {
-    private readonly IProfileService _profileService;
+    private readonly IUserProfileService _userProfileService;
 
-    public UserProfileController(IProfileService profileService)
+    private readonly IUserService _userService;
+    public UserProfileController(IUserProfileService userProfileService, IUserService userService)
     {
-        _profileService = profileService;
+        _userProfileService = userProfileService;
+        _userService = userService;
     }
     
-    /// <summary>
-    /// Изменение языка интерфейса пользователя
-    /// </summary>
-    /// <remarks>
-    /// Пример запроса:
-    /// 
-    ///     PUT /api/UserProfile/1/language
-    ///     {
-    ///        "LanguageCode": "EN"
-    ///     }
-    /// 
-    /// </remarks>
-    /// <param name="userId">ID пользователя</param>
-    /// <param name="request">Запрос на изменение языка</param>
-    /// <returns>Результат операции</returns>
-    [HttpPut("{userId}/language")]
-    public ActionResult ChangeUserLanguage(int userId, [FromBody] ChangeUserLanguageRequest request)
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
     {
-        var result = _profileService.ChangeUserLanguageAsync(userId, request.LanguageCode);
-        return Ok();
+        var currentUser = await _userProfileService.GetMe();
+        return Ok(currentUser);
+    }
+    
+    [HttpPut]
+    public async Task<IActionResult> UpdateUserData(ChangeUserDataRequest changeUserDataRequest)
+    {
+        var currentUser = await _userProfileService.ChangeUserData(changeUserDataRequest);
+        return Ok(currentUser);
     }
 }

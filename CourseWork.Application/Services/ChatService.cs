@@ -1,8 +1,8 @@
 ﻿using CourseWork.Domain.Contracts.ChatContracts;
+using CourseWork.Domain.Contracts.UserContracts;
 using CourseWork.Domain.Entities;
 using CourseWork.Domain.Exceptions;
 using CourseWork.Domain.Interfaces;
-using CourseWork.Domain.Results;
 using CourseWork.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,110 +10,85 @@ namespace CourseWork.Application.Services
 {
     public class ChatService : IChatService
     {
-        
         private readonly CharityDBContext _charityDbContext;
 
-        public ChatService(CharityDBContext charityDbContext)
+        private readonly IUserService _userService;
+        
+        
+        public ChatService(CharityDBContext charityDbContext, IUserService userService)
         {
             _charityDbContext = charityDbContext;
+            _userService = userService;
         }
 
-        public async Task<ChatRoomResponse> CreateChatRoomAsync(CreateChatRoomRequest request)
+        public async Task<ChatRoomResponse> CreateChatRoom(CreateChatRoomRequest conversationRequestDto)
         {
-            var chatRoom = new ChatRoom
-            {
-                RoomName = request.ChatRoomName
-            };
-            await _charityDbContext.ChatRooms.AddAsync(chatRoom);
-            await _charityDbContext.SaveChangesAsync();
-            return new ChatRoomResponse
-            {
-                IdChatRoom = chatRoom.ChatRoomId,
-                NameRoom = chatRoom.RoomName
-            };
-        }
+            var currentUser = await _userService.GetCurrentUser();
 
-        public async Task<ChatRoomUserResponse> AddUserToChatAsync(AddUserToChatRequest request)
-        {
-            var chatRoom = await _charityDbContext.ChatRooms
-                .Include(c => c.ChatRoomUsers)
-                .FirstOrDefaultAsync(c => c.ChatRoomId == request.ChatRoomId);
+            var receivers = await _charityDbContext.Users
+                .Where(u => conversationRequestDto.ReceiverIds.Contains(u.UserId))
+                .ToListAsync();
 
-            if (chatRoom == null)
+            if (receivers.Count != conversationRequestDto.ReceiverIds.Length)
+                throw new WrongConversationParticipantsIdsException();
+
+            if (receivers.Contains(currentUser)) 
+                throw new ReceiverEqualsSenderException();
+
+            receivers.Add(currentUser);
+
+            var participants = new List<User>(receivers);
+            var conversationType = receivers.Count > 2 ? ChatRoomType.Conversation : ChatRoomType.Dialogue;
+
+
+            var existingChat = await _charityDbContext.ChatRooms
+                .Include(x => x.Users)
+                .FirstOrDefaultAsync(p => p.Users
+                    .All(c => receivers.Contains(c) && p.ChatRoomType == ChatRoomType.Dialogue));
+
+            if (existingChat is not null)
             {
-                throw new ChatNotFoundException();
+                return new ChatRoomResponse
+                {
+                    ChatRoomId = existingChat.ChatRoomId,
+                    ChatRoomType = existingChat.ChatRoomType,
+                    Participants = participants.Select(x => new UserResponse
+                    {
+                        Biography = x.Biography,
+                        City = x.City,
+                        Country = x.Country,
+                        Email = x.Email,
+                        FirstName = x.FirstName,
+                        LastName = x.LastName,
+                        PhoneNumber = x.PhoneNumber
+                    }).ToArray()
+                };
             }
 
-            var user = await _charityDbContext.Users.FindAsync(request.UserId);
-            if (user == null)
+            var conversation = new ChatRoom()
             {
-                throw new UserNotFoundException();
-            }
-
-            var chatRoomUser = new ChatRoomUser
-            {
-                ChatRoomId = request.ChatRoomId,
-                UserId = request.UserId
+                ChatRoomType = conversationType,
+                Users = participants
             };
 
-            await _charityDbContext.ChatRoomUsers.AddAsync(chatRoomUser);
+            await _charityDbContext.ChatRooms.AddAsync(conversation);
             await _charityDbContext.SaveChangesAsync();
-            
-            return new ChatRoomUserResponse
-            {
-                IdChatRoom = chatRoomUser.ChatRoomId,
-                IdUser = chatRoomUser.UserId
-            };
-        }
 
-        public async Task<ChatRoomUserResponse> RemoveUserFromChatAsync(RemoveUserFromChatRequest request)
-        {
-            var chatRoomUser = await _charityDbContext.ChatRoomUsers
-                .FirstOrDefaultAsync(cru => cru.ChatRoomId == request.ChatRoomId && cru.UserId == request.UserId);
-            if (chatRoomUser == null)
-            {
-                throw new UserNotFoundException();
-            }
-
-            _charityDbContext.ChatRoomUsers.Remove(chatRoomUser);
-            await _charityDbContext.SaveChangesAsync();
-            return new ChatRoomUserResponse
-            {
-                IdChatRoom = chatRoomUser.ChatRoomId,
-                IdUser = chatRoomUser.UserId
-            };
-        }
-
-        public async Task<ChatRoomResponse> DeleteChatRoomAsync(int chatRoomId)
-        {
-            var chatRoom = await _charityDbContext.ChatRooms
-                .Include(c => c.ChatRoomUsers)
-                .FirstOrDefaultAsync(c => c.ChatRoomId == chatRoomId);
-            _charityDbContext.ChatRooms.Remove(chatRoom);
-            await _charityDbContext.SaveChangesAsync();
             return new ChatRoomResponse
             {
-                IdChatRoom = chatRoom.ChatRoomId,
-                NameRoom = chatRoom.RoomName
+                ChatRoomType = conversationType,
+                ChatRoomId = conversation.ChatRoomId,
+                Participants = participants.Select(x => new UserResponse
+                {
+                    Biography = x.Biography,
+                    City = x.City,
+                    Country = x.Country,
+                    Email = x.Email,
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    PhoneNumber = x.PhoneNumber
+                }).ToArray()
             };
         }
-        
-        
-        public async Task<ChatRoomResponse> CreatePrivateChatAsync(CreateChatRoomRequest request)
-        {
-            var privateChat = new ChatRoom
-            {
-                RoomName = request.ChatRoomName
-            };
-            await _charityDbContext.ChatRooms.AddAsync(privateChat);
-            await _charityDbContext.SaveChangesAsync();
-            return new ChatRoomResponse
-            {
-                IdChatRoom = privateChat.ChatRoomId,
-                NameRoom = privateChat.RoomName
-            };
-        }
-        
-        
     }
 }

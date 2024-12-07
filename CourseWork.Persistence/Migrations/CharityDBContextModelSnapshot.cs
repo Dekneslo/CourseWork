@@ -3,8 +3,8 @@ using System;
 using CourseWork.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -18,317 +18,171 @@ namespace CourseWork.Persistence.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "6.0.33")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("ChatRoomUser", b =>
+                {
+                    b.Property<int>("ChatRoomsChatRoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UsersUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ChatRoomsChatRoomId", "UsersUserId");
+
+                    b.HasIndex("UsersUserId");
+
+                    b.ToTable("ChatRoomUser");
+                });
+
+            modelBuilder.Entity("CourseUser", b =>
+                {
+                    b.Property<int>("EnrolledCoursesCourseId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("EnrolledUsersUserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("EnrolledCoursesCourseId", "EnrolledUsersUserId");
+
+                    b.HasIndex("EnrolledUsersUserId");
+
+                    b.ToTable("CourseUser");
+                });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.Category", b =>
                 {
                     b.Property<int>("CategoryId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("idCategory");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CategoryId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CategoryId"));
 
-                    b.Property<string>("CategoryName")
+                    b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("nameCategory");
+                        .HasColumnType("text");
 
                     b.HasKey("CategoryId");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            CategoryId = 1,
+                            Name = "Развивающие"
+                        },
+                        new
+                        {
+                            CategoryId = 2,
+                            Name = "Познавательные"
+                        },
+                        new
+                        {
+                            CategoryId = 3,
+                            Name = "Обучающие"
+                        });
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.ChatRoom", b =>
                 {
                     b.Property<int>("ChatRoomId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ChatRoomId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ChatRoomId"));
 
-                    b.Property<string>("RoomName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                    b.Property<int>("ChatRoomType")
+                        .HasColumnType("integer");
 
                     b.HasKey("ChatRoomId");
 
                     b.ToTable("ChatRooms");
                 });
 
-            modelBuilder.Entity("CourseWork.Domain.Entities.ChatRoomUser", b =>
-                {
-                    b.Property<int>("ChatRoomId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ChatRoomId", "UserId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ChatRoomUsers");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Comment", b =>
-                {
-                    b.Property<int>("CommentId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"), 1L, 1);
-
-                    b.Property<string>("CommentDescription")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DateCommented")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommentId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.CommentFile", b =>
-                {
-                    b.Property<int>("CommentId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CommentId", "FileId");
-
-                    b.HasIndex("FileId");
-
-                    b.ToTable("CommentMedia");
-                });
-
             modelBuilder.Entity("CourseWork.Domain.Entities.Course", b =>
                 {
                     b.Property<int>("CourseId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CourseId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("CourseId"));
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("CourseName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("CourseId");
 
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Courses");
-                });
 
-            modelBuilder.Entity("CourseWork.Domain.Entities.CourseFile", b =>
-                {
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.HasKey("CourseId", "FileId");
-
-                    b.HasIndex("FileId");
-
-                    b.ToTable("CoursesFiles");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.DailyUpdate", b =>
-                {
-                    b.Property<int>("DailyUpdateId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DailyUpdateId"), 1L, 1);
-
-                    b.Property<DateTime>("DateOfPosted")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("DailyUpdateId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("DailyUpdates");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.File", b =>
-                {
-                    b.Property<int>("FileId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("FileId"), 1L, 1);
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FileId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Files");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.FileAccess", b =>
-                {
-                    b.Property<int>("AccessId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccessId"), 1L, 1);
-
-                    b.Property<string>("AccessType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("IdFile")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdUser")
-                        .HasColumnType("int");
-
-                    b.HasKey("AccessId");
-
-                    b.HasIndex("IdFile");
-
-                    b.HasIndex("IdUser");
-
-                    b.ToTable("FileAccesses");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.LikeOnCourse", b =>
-                {
-                    b.Property<int>("LikeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LikeId"), 1L, 1);
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("LikeId");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("LikesToCourses");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.LikeOnPost", b =>
-                {
-                    b.Property<int>("LikeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LikeId"), 1L, 1);
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("LikeId");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("LikesToPosts");
+                    b.HasData(
+                        new
+                        {
+                            CourseId = 1,
+                            CategoryId = 2,
+                            DateCreated = new DateTime(2024, 12, 7, 14, 49, 54, 973, DateTimeKind.Utc).AddTicks(8474),
+                            Description = "string",
+                            Name = "Тест"
+                        },
+                        new
+                        {
+                            CourseId = 2,
+                            CategoryId = 2,
+                            DateCreated = new DateTime(2024, 12, 7, 14, 49, 54, 973, DateTimeKind.Utc).AddTicks(8481),
+                            Description = "string",
+                            Name = "Тест"
+                        },
+                        new
+                        {
+                            CourseId = 3,
+                            CategoryId = 1,
+                            DateCreated = new DateTime(2024, 12, 7, 14, 49, 54, 973, DateTimeKind.Utc).AddTicks(8483),
+                            Description = "string",
+                            Name = "Тест"
+                        });
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.Message", b =>
                 {
                     b.Property<int>("MessageId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MessageId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("MessageId"));
 
-                    b.Property<string>("MessageText")
+                    b.Property<int?>("ChatRoomId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
-                    b.Property<int>("RecipientId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("SentDate")
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("SenderId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SendingDatetime")
-                        .HasColumnType("datetime2");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
                     b.HasKey("MessageId");
 
-                    b.HasIndex("RecipientId");
+                    b.HasIndex("ChatRoomId");
 
-                    b.HasIndex("SenderId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("Messages");
                 });
@@ -337,24 +191,23 @@ namespace CourseWork.Persistence.Migrations
                 {
                     b.Property<int>("PostId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PostId"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DatePosted")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("PostContent")
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PostTitle")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("text");
 
                     b.Property<int>("UserId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("PostId");
 
@@ -363,290 +216,102 @@ namespace CourseWork.Persistence.Migrations
                     b.ToTable("Posts");
                 });
 
-            modelBuilder.Entity("CourseWork.Domain.Entities.PostFile", b =>
-                {
-                    b.Property<int>("FileId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.HasKey("FileId", "PostId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("PostsFiles");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Role", b =>
-                {
-                    b.Property<int>("RoleId")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RoleId"), 1L, 1);
-
-                    b.Property<string>("RoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("RoleId");
-
-                    b.ToTable("Roles");
-                });
-
             modelBuilder.Entity("CourseWork.Domain.Entities.User", b =>
                 {
                     b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserId"), 1L, 1);
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("Biography")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("text");
 
-                    b.Property<string>("Password")
+                    b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId");
-
-                    b.HasIndex("RoleId");
 
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("CourseWork.Domain.Entities.UserLanguage", b =>
+            modelBuilder.Entity("ChatRoomUser", b =>
                 {
-                    b.Property<int>("IdUser")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Language")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.HasKey("IdUser", "Language");
-
-                    b.ToTable("UserLanguages");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.UsersCourse", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "CourseId");
-
-                    b.HasIndex("CourseId");
-
-                    b.ToTable("UsersCourses", (string)null);
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.ChatRoomUser", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.ChatRoom", "ChatRoom")
-                        .WithMany("ChatRoomUsers")
-                        .HasForeignKey("ChatRoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("ChatRoomUsers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ChatRoom");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Comment", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Course", "Course")
-                        .WithMany("Comments")
-                        .HasForeignKey("CourseId");
-
-                    b.HasOne("CourseWork.Domain.Entities.Post", "Post")
-                        .WithMany("Comments")
-                        .HasForeignKey("PostId");
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("Comments")
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.CommentFile", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Comment", "Comment")
-                        .WithMany("CommentFiles")
-                        .HasForeignKey("CommentId")
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.File", "File")
+                    b.HasOne("CourseWork.Domain.Entities.ChatRoom", null)
                         .WithMany()
-                        .HasForeignKey("FileId")
+                        .HasForeignKey("ChatRoomsChatRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Comment");
+                    b.HasOne("CourseWork.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
 
-                    b.Navigation("File");
+            modelBuilder.Entity("CourseUser", b =>
+                {
+                    b.HasOne("CourseWork.Domain.Entities.Course", null)
+                        .WithMany()
+                        .HasForeignKey("EnrolledCoursesCourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("CourseWork.Domain.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("EnrolledUsersUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.Course", b =>
                 {
                     b.HasOne("CourseWork.Domain.Entities.Category", "Category")
-                        .WithMany("Courses")
+                        .WithMany()
                         .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("CourseWork.Domain.Entities.CourseFile", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Course", "Course")
-                        .WithMany("CourseFiles")
-                        .HasForeignKey("CourseId")
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.File", "File")
-                        .WithMany("CourseFiles")
-                        .HasForeignKey("FileId")
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("File");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.DailyUpdate", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("DailyUpdates")
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.File", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("Files")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.FileAccess", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.File", "File")
-                        .WithMany("FileAccesses")
-                        .HasForeignKey("IdFile")
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("FileAccesses")
-                        .HasForeignKey("IdUser")
-                        .IsRequired();
-
-                    b.Navigation("File");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.LikeOnCourse", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Course", "Course")
-                        .WithMany("LikesToCourses")
-                        .HasForeignKey("CourseId")
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("LikesOnCourses")
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.LikeOnPost", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Post", "Post")
-                        .WithMany("LikesToPosts")
-                        .HasForeignKey("PostId")
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("LikesOnPosts")
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("CourseWork.Domain.Entities.Message", b =>
                 {
-                    b.HasOne("CourseWork.Domain.Entities.User", "Recipient")
-                        .WithMany("MessagesAsRecipient")
-                        .HasForeignKey("RecipientId")
+                    b.HasOne("CourseWork.Domain.Entities.ChatRoom", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatRoomId");
+
+                    b.HasOne("CourseWork.Domain.Entities.User", "User")
+                        .WithMany("Messages")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CourseWork.Domain.Entities.User", "Sender")
-                        .WithMany("MessageAsSender")
-                        .HasForeignKey("SenderId")
-                        .IsRequired();
-
-                    b.Navigation("Recipient");
-
-                    b.Navigation("Sender");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.Post", b =>
@@ -654,142 +319,22 @@ namespace CourseWork.Persistence.Migrations
                     b.HasOne("CourseWork.Domain.Entities.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.PostFile", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.File", "File")
-                        .WithMany("PostMedia")
-                        .HasForeignKey("FileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("CourseWork.Domain.Entities.Post", "Post")
-                        .WithMany("PostFile")
-                        .HasForeignKey("PostId")
-                        .IsRequired();
-
-                    b.Navigation("File");
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.User", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Role", "Role")
-                        .WithMany("Users")
-                        .HasForeignKey("RoleId")
-                        .IsRequired();
-
-                    b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.UserLanguage", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("UserLanguages")
-                        .HasForeignKey("IdUser")
-                        .IsRequired();
-
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.UsersCourse", b =>
-                {
-                    b.HasOne("CourseWork.Domain.Entities.Course", "Course")
-                        .WithMany("UsersCourses")
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CourseWork.Domain.Entities.User", "User")
-                        .WithMany("UsersCourses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Category", b =>
-                {
-                    b.Navigation("Courses");
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.ChatRoom", b =>
                 {
-                    b.Navigation("ChatRoomUsers");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Comment", b =>
-                {
-                    b.Navigation("CommentFiles");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Course", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("CourseFiles");
-
-                    b.Navigation("LikesToCourses");
-
-                    b.Navigation("UsersCourses");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.File", b =>
-                {
-                    b.Navigation("CourseFiles");
-
-                    b.Navigation("FileAccesses");
-
-                    b.Navigation("PostMedia");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Post", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("LikesToPosts");
-
-                    b.Navigation("PostFile");
-                });
-
-            modelBuilder.Entity("CourseWork.Domain.Entities.Role", b =>
-                {
-                    b.Navigation("Users");
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("CourseWork.Domain.Entities.User", b =>
                 {
-                    b.Navigation("ChatRoomUsers");
-
-                    b.Navigation("Comments");
-
-                    b.Navigation("DailyUpdates");
-
-                    b.Navigation("FileAccesses");
-
-                    b.Navigation("Files");
-
-                    b.Navigation("LikesOnCourses");
-
-                    b.Navigation("LikesOnPosts");
-
-                    b.Navigation("MessageAsSender");
-
-                    b.Navigation("MessagesAsRecipient");
+                    b.Navigation("Messages");
 
                     b.Navigation("Posts");
-
-                    b.Navigation("UserLanguages");
-
-                    b.Navigation("UsersCourses");
                 });
 #pragma warning restore 612, 618
         }

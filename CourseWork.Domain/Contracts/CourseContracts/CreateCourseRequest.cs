@@ -2,8 +2,12 @@
 {
     public class CreateCourseRequest
     {
-        public string NameCourse { get; set; }
-        public string Description { get; set; }
-        public int IdCategory { get; set; }
+        public required string CourseName { get; set; }
+        
+        public required string Description { get; set; }
+        
+        public required int CategoryId { get; set; }
+        
+        
     }
 }

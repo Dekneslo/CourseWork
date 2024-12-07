@@ -4,10 +4,8 @@ namespace CourseWork.Domain.Interfaces
 {
     public interface IMessageService
     {
-        Task<MessageResponse[]> GetMessagesByUserAsync(int userId); 
+        Task<MessageResponse[]> GetMessages(int chatRoomId); 
         
         Task<MessageResponse> SendMessageAsync(SendMessageRequest messageRequest); 
-        
-        Task<MessageResponse[]> GetMessagesBetweenUsersAsync(int senderId, int recipientId);
     }
 }

@@ -2,6 +2,6 @@
 {
     public class CreateChatRoomRequest
     {
-        public string ChatRoomName { get; set; }
+        public required int[] ReceiverIds { get; set; }
     }
 }

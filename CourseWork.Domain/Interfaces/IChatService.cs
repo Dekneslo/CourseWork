@@ -10,14 +10,6 @@ namespace CourseWork.Domain.Interfaces
 {
     public interface IChatService
     {
-        Task<ChatRoomResponse> CreateChatRoomAsync(CreateChatRoomRequest request);
-        
-        Task<ChatRoomUserResponse> AddUserToChatAsync(AddUserToChatRequest request);
-        
-        Task<ChatRoomUserResponse> RemoveUserFromChatAsync(RemoveUserFromChatRequest request);
-        
-        Task<ChatRoomResponse> CreatePrivateChatAsync(CreateChatRoomRequest request);
-        
-        Task<ChatRoomResponse> DeleteChatRoomAsync(int chatRoomId);
+        Task<ChatRoomResponse> CreateChatRoom(CreateChatRoomRequest request);
     }
 }

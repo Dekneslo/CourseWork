@@ -2,7 +2,7 @@
 
 public class ChatRoomUserResponse
 {
-    public int IdChatRoom { get; set; }
+    public required int IdChatRoom { get; set; }
     
-    public int IdUser { get; set; }
+    public required int IdUser { get; set; }
 }

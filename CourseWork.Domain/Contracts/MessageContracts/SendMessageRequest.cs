@@ -2,8 +2,8 @@
 {
     public class SendMessageRequest
     {
-        public int IdSender { get; set; }
-        public int IdRecipient { get; set; }
-        public string MessageText { get; set; }
+        public required string MessageText { get; set; }
+        
+        public required int ChatRoomId { get; set; }
     }
 }
