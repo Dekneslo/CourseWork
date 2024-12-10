@@ -1,4 +1,6 @@
-﻿namespace CourseWork.Domain.Entities
+﻿using Domain.Models;
+
+namespace CourseWork.Domain.Entities
 {
     public class User
     {
@@ -26,6 +28,8 @@
 
         public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+        
         public virtual ICollection<ChatRoom> ChatRooms { get; set; } = new List<ChatRoom>();
     }
 }
